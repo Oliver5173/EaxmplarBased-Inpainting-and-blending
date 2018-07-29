@@ -1,6 +1,5 @@
 function [inpainted,C,D] = inpaint(im,fillColor)
-im = double(im);
-inpainted = im;
+inpainted = double(im);
 [h,w,c] = size(im);
 %define target region.
 for i = 1:h
@@ -12,7 +11,7 @@ sourceRegion = ~targetRegion;
 %initialization
 alpha = 255;
 %isophote(direction and intensity) at point P.
-[Ix Iy] = gradient(im);
+[Ix,Iy] = gradient(im);
 Ix = sum(Ix,3) / c;
 Iy = sum(Iy,3) / c;
 %confidence
@@ -26,23 +25,23 @@ while(any(targetRegion(:)))
     N(~isfinite(N))=0;
     %calculate confidence
     for p = contour'
-        %unfinished
-        patch = getpatch(p,patchsize);
+        %p is point index of im.
+        [patch,~,~] = getPatch(p,3,h,w);
         q = patch(~targetRegion(patch));
         C(p) = sum(C(q)) / numel(patch);
     end
     %calculate data
-    D = abs(Ix(contour) * N(:,1) + Iy(contour) * N(:,2)) / alpha;
+    D = abs(Ix(contour) * N(:,1) + Iy(contour) * N(:,2)) / (alpha*c);
     %priorities
     P = C(contour)*D(contour);
     %find fill point.
     [~,idx] = max(P);
     p = contour(idx);
-    [patch,r,c] = getPatch(p,patchsize);
+    [patch,r,c] = getPatch(p,3,h,w);
     %fillRegion stores boolean values
     fillRegion = targetRegion(patch);
     %find to-fill patch with minium error;
-    q = bestexemplar(im,im(r,c,:),fillRegion',sourceRegion);
+    q = getExemplar(im,im(r,c,:),fillRegion,sourceRegion);
     for ch = 1:c
         inpainted(patch(fillRegion),c) = inpainted(q(fillRegion),c);
     end
@@ -52,6 +51,5 @@ while(any(targetRegion(:)))
     Iy(patch(fillRegion)) = Iy(q(fillRegion));
     targetRegion(patch(fillRegion)) = 0;
     targetRegion = logical(targetRegion);
-    
 end 
 end
