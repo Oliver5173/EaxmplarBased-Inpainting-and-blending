@@ -1,4 +1,4 @@
-function [inpainted,C,D] = inpaint(im,fillColor)
+function [inpainted,C,D] = inpaint(im,fillColor,patch_range)
 inpainted = double(im);
 [h,w,b] = size(inpainted);
 %define target region.
@@ -23,10 +23,9 @@ C = double(~targetRegion);
 %data
 D = C;
 %use for debug
-% iteration = 0;
-patch_range = 2; %patch size = 2*patch_range + 1;
+iteration = 0;
 while(any(targetRegion(:)))
-%     iteration = iteration + 1;
+    iteration = iteration + 1;
     contour = find(conv2(targetRegion,[1,1,1;1,-8,1;1,1,1],'same')>0);
     %N is normal to the contour.
     [Nx,Ny] = gradient(double(~targetRegion));
