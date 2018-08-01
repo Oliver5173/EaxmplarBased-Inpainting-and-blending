@@ -1,4 +1,7 @@
 function [inpainted,C,D] = inpaint(im,fillColor,patch_range)
+outputVideo = VideoWriter('./sample.avi');
+outputVideo.FrameRate = 30;
+open(outputVideo);
 inpainted = double(im);
 [h,w,b] = size(inpainted);
 %define target region.
@@ -34,7 +37,7 @@ while(any(targetRegion(:)))
     %calculate confidence
     for p = contour'
         %p is point index of inpainted.
-        [patch,~,~] = getPatch(p,patch_range,h,w);
+        [patch,~,~] = getPatch(p,3,h,w);
         q = patch(~(targetRegion(patch)));
         C(p) = sum(C(q)) / numel(patch);
     end
@@ -45,7 +48,7 @@ while(any(targetRegion(:)))
     %find fill point.
     [~,idx] = max(P);
     p = contour(idx);
-    [patch,r,c] = getPatch(p,patch_range,h,w);
+    [patch,r,c] = getPatch(p,3,h,w);
     %fillRegion stores boolean values
     fillRegion = targetRegion(patch);
     %find to-fill patch with minium error;
@@ -58,5 +61,7 @@ while(any(targetRegion(:)))
     C(patch(fillRegion)) = C(p);
     Ix(patch(fillRegion)) = Ix(examplar(fillRegion));
     Iy(patch(fillRegion)) = Iy(examplar(fillRegion));
-end 
+    writeVideo(outputVideo,uint8(inpainted));
+end
+close(outputVideo);
 end
