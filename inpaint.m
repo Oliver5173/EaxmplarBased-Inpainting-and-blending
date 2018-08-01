@@ -1,6 +1,6 @@
 function [inpainted,C,D] = inpaint(im,fillColor,patch_range)
 outputVideo = VideoWriter('./sample.avi');
-outputVideo.FrameRate = 30;
+outputVideo.FrameRate = 10;
 open(outputVideo);
 inpainted = double(im);
 [h,w,b] = size(inpainted);
@@ -27,6 +27,27 @@ C = double(~targetRegion);
 D = C;
 %use for debug
 iteration = 0;
+
+disp('define texture box,enter q to stop, only select letf up and right down corner;');
+figure(1), hold off, imagesc(uint8(im)), axis image;
+sx = [];
+sy = [];
+while 1
+    figure(1);
+    [x, y, z] = ginput(1);
+    if z=='q'
+        break;
+    end
+    sx(end+1) = x;
+    sy(end+1) = y;
+    hold on, plot(sx, sy, '*-');
+end
+if(size(sx,2) == 0)
+    sx = [1,w];
+    sy = [1,h];
+end
+sy = ceil(sy(1)) : ceil(sy(2));
+sx = ceil(sx(1)) : ceil(sx(2));
 while(any(targetRegion(:)))
     iteration = iteration + 1;
     contour = find(conv2(targetRegion,[1,1,1;1,-8,1;1,1,1],'same')>0);
@@ -37,7 +58,7 @@ while(any(targetRegion(:)))
     %calculate confidence
     for p = contour'
         %p is point index of inpainted.
-        [patch,~,~] = getPatch(p,3,h,w);
+        [patch,~,~] = getPatch(p,patch_range,h,w);
         q = patch(~(targetRegion(patch)));
         C(p) = sum(C(q)) / numel(patch);
     end
@@ -48,13 +69,15 @@ while(any(targetRegion(:)))
     %find fill point.
     [~,idx] = max(P);
     p = contour(idx);
-    [patch,r,c] = getPatch(p,3,h,w);
+    [patch,r,c] = getPatch(p,patch_range,h,w);
     %fillRegion stores boolean values
     fillRegion = targetRegion(patch);
     %find to-fill patch with minium error;
-    examplar = getExemplar(inpainted,inpainted(r,c,:),fillRegion',sourceRegion);
+    temp_inpainted = inpainted(sy,sx,:);
+    examplar = getExemplar(temp_inpainted,inpainted(r,c,:),fillRegion',sourceRegion(sy,sx));
+    
     for ch = 1:b
-        inpainted(patch(fillRegion) + (ch - 1)*h*w) = inpainted(examplar(fillRegion) + (ch - 1)*h*w);
+        inpainted(patch(fillRegion) + (ch - 1)*h*w) = temp_inpainted(examplar(fillRegion) + (ch - 1)*size(sy,2)*size(sx,2));
     end
     %update C,D,targetRegion;
     targetRegion(patch(fillRegion)) = 0;
