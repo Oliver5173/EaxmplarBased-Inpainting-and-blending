@@ -9,7 +9,10 @@ ty = floor(ty);
 r = max(ty,1): min(ty + h - 1, th);
 c = max(tx,1): min(tx + w - 1, tw);
 im_s2 = zeros(th,tw,3);
-im_s2(r,c,:) = im_s(:,:,:);
+restrict_r = 1:min(size(r,2),size(im_s,1));
+restrict_c = 1:min(size(c,2),size(im_s,2));
+
+im_s2(r,c,:) = im_s(restrict_r,restrict_c,:);
 mask2 = zeros(th,tw);
-mask2(r,c) = mask;
+mask2(r,c) = mask(restrict_r,restrict_c);
 end
