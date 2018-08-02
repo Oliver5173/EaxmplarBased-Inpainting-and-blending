@@ -1,5 +1,6 @@
 close all;
 %paramaters
+im_scalar = 0.8; % resize to the desired resolution for the read in image
 scalar = 0.5;
 patch_range = 3; % patch size = (patch_range * 2 + 1) ^ 2;
 
