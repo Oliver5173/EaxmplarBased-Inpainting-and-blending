@@ -74,7 +74,7 @@ while(any(targetRegion(:)))
     fillRegion = targetRegion(patch);
     %find to-fill patch with minium error;
     temp_inpainted = inpainted(sy,sx,:);
-    examplar = getExemplar(temp_inpainted,inpainted(r,c,:),fillRegion',sourceRegion(sy,sx));
+    examplar = getExemplar(rgb2lab(temp_inpainted),rgb2lab(inpainted(r,c,:)),fillRegion',sourceRegion(sy,sx));
     
     for ch = 1:b
         inpainted(patch(fillRegion) + (ch - 1)*h*w) = temp_inpainted(examplar(fillRegion) + (ch - 1)*size(sy,2)*size(sx,2));
