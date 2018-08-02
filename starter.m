@@ -3,7 +3,7 @@ close all;
 scalar = 0.5;
 patch_range = 3; % patch size = (patch_range * 2 + 1) ^ 2;
 
-im = imread('bungee0.png');
+im = imresize( imread('./bungee0.jpg'), im_scalar , 'bilinear');
 mask = getMask(im);
 [obj,objmask] = resizer(im,mask,scalar);
 filledIm = fileTofill(im,~mask);
