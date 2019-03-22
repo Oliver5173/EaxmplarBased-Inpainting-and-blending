@@ -1,8 +1,8 @@
 /**
- * A best exemplar finder.  Scans over the entire image (using a
- * sliding window) and finds the exemplar which minimizes the sum
- * squared error (SSE) over the to-be-filled pixels in the target
- * patch. 
+ * A exemplar finder that scans the entire image with a 
+ * sliding window and finds the exemplar with minimum sum
+ * squared error (SSE) over the to-be-filled pixels in the 
+ * target patch. 
  *
  * @author Sooraj Bhat
  */
